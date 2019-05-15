@@ -1,15 +1,31 @@
 package br.com.unipac;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import java.util.List;
+
+import br.com.unipac.dao.AlunoDAO;
+import br.com.unipac.model.Aluno;
+import br.com.unipac.ui.adapter.AlunoAdapter;
+import br.com.unipac.ui.adapter.AlunoForm;
 
 public class MainActivity extends AppCompatActivity {
+
+    private List<Aluno> alunoList = null;
+
+    private AlunoAdapter alunoAdapter;
+    private ListView alunoListView;
+
+    private AlunoDAO alunoDAO = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,10 +38,27 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent i = new Intent(MainActivity.this, AlunoForm.class);
+                startActivity(i);
             }
         });
+
+        alunoListView = (ListView) findViewById(R.id.lista_aluno);
+
+        alunoDAO = new AlunoDAO(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        alunoList = alunoDAO.buscarTodos();
+        if (!alunoList.isEmpty() && alunoList.size() > 0) {
+            alunoAdapter = new AlunoAdapter(alunoList, this);
+            alunoListView.setAdapter(alunoAdapter);
+        } else {
+            Toast.makeText(getApplicationContext(), "Não tem alunos cadastrados" , Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
